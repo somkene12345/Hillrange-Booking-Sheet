@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { Image, StyleSheet, ScrollView, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { ref, set, push, update } from 'firebase/database'; // Import Firebase methods
-import { database } from './firebaseConfig'; // Import the initialized database
-
-
+import { ref, push, get } from 'firebase/database'; // Import Firebase methods
+import { database } from '../../firebaseConfig'; // Import the initialized database
+import Toast from 'react-native-toast-message';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme(); // Get the current color scheme
   const styles = getStyles(colorScheme);
   const navigation = useNavigation();
   const [teacherName, setTeacherName] = useState('');
+  const [teacherId, setTeacherId] = useState(null); // To store the teacher ID
   const [rows, setRows] = useState(
     Array.from({ length: 10 }, () => ({
       name: '',
@@ -24,6 +24,44 @@ export default function HomeScreen() {
     }))
   );
 
+  const [teachers, setTeachers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch teacher data from Firebase on mount
+  useEffect(() => {
+    const teachersRef = ref(database, 'bookings/teachers');
+    get(teachersRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          setTeachers(Object.values(data)); // Store teachers' data
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching teachers:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  // Update teacherId when teacherName changes
+  const handleTeacherNameChange = (text) => {
+    const trimmedText = text.trim(); // Trim any unnecessary spaces
+    setTeacherName(trimmedText);
+  
+    // Check for matching teacher name (case insensitive)
+    const matchedTeacher = teachers.find(
+      (teacher) => teacher.teacherName.toLowerCase() === trimmedText.toLowerCase()
+    );
+  
+    if (matchedTeacher) {
+      setTeacherId(trimmedText); // Use teacherName as a placeholder "teacherId"
+    } else {
+      setTeacherId(null); // Reset if no match
+    }
+  };
+  
+
   const handleInputChange = (index: number, field: string, value: string) => {
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
@@ -31,35 +69,99 @@ export default function HomeScreen() {
   };
 
   const handleSubmit = () => {
-    const bookingsRef = ref(database, 'bookings/data'); // Ensure data is stored under 'data'
+    const bookingsRef = ref(database, 'bookings/data');
+    const validRows = rows.filter(row => row.name && row.remark); // Filter valid rows
+    let successCount = 0;
+    let errorCount = 0;
   
-    rows.forEach((row) => {
-      if (row.name && row.remark) { // Validate non-empty fields
-        const newBooking = {
-          name: row.name,
-          remark: row.remark,
-          class: row.class,
-          team: row.team,
-        };
+    if (validRows.length === 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Submission Error',
+        text2: 'No valid data to submit.',
+        position: 'bottom',
+        bottomOffset: 50,
+      });
+      return;
+    }
   
-        push(bookingsRef, newBooking)
-          .then(() => {
-            console.log(`Booking for ${row.name} added successfully!`);
-          })
-          .catch((error) => {
-            console.error('Error adding booking:', error);
-          });
-      }
+    if (!teacherName.trim()) {
+      Toast.show({
+        type: 'error',
+        text1: 'Teacher Error',
+        text2: 'Please enter a teacher name.',
+        position: 'bottom',
+        bottomOffset: 50,
+      });
+      return;
+    }
+  
+    validRows.forEach((row) => {
+      const newBooking = {
+        name: row.name,
+        remark: row.remark,
+        class: row.class,
+        team: row.team,
+        teacherName: teacherName.trim(), // Use teacherName directly
+      };
+  
+      push(bookingsRef, newBooking)
+        .then(() => {
+          successCount++;
+          if (successCount + errorCount === validRows.length) {
+            Toast.show({
+              type: 'success',
+              text1: 'Submission Successful',
+              text2: `${successCount} booking(s) added successfully.`,
+              position: 'bottom',
+              bottomOffset: 50,
+            });
+            navigation.navigate('explore');
+          }
+        })
+        .catch((error) => {
+          errorCount++;
+          if (successCount + errorCount === validRows.length) {
+            Toast.show({
+              type: 'error',
+              text1: 'Submission Error',
+              text2: `${errorCount} booking(s) failed to add.`,
+              position: 'bottom',
+              bottomOffset: 50,
+            });
+          }
+        });
     });
   
-    const teacherNameRef = ref(database, 'data'); // Store the teacher name under 'data'
-    update(teacherNameRef, { teacherName: teacherName })
-      .then(() => console.log('Teacher name updated successfully!'))
-      .catch((error) => console.error('Error updating teacher name:', error));
+    // Optionally add the teacherName to Firebase if it's not already there
+    const teacherExists = teachers.some(
+      (teacher) => teacher.teacherName.toLowerCase() === teacherName.toLowerCase()
+    );
   
-    // Navigate to the explore page after successful submission
-    navigation.navigate('explore');
+    if (!teacherExists) {
+      push(ref(database, 'bookings/teachers'), { teacherName: teacherName.trim() })
+        .then(() => {
+          Toast.show({
+            type: 'success',
+            text1: 'Teacher Added',
+            text2: teacherName.trim(),
+            position: 'bottom',
+            bottomOffset: 50,
+          });
+        })
+        .catch((error) => {
+          console.error('Error adding teacher:', error);
+          Toast.show({
+            type: 'error',
+            text1: 'Teacher Submission Failed',
+            text2: error.message,
+            position: 'bottom',
+            bottomOffset: 50,
+          });
+        });
+    }
   };
+  
   
 
   const renderRow = (id: number) => (
@@ -117,6 +219,21 @@ export default function HomeScreen() {
     </tr>
   );
 
+  const toastConfig = {
+    success: ({ text1, text2 }) => (
+      <View style={styles.toastSuccess}>
+        <Text style={styles.toastText}>{text1}</Text>
+        {text2 && <Text style={styles.toastSubText}>{text2}</Text>}
+      </View>
+    ),
+    error: ({ text1, text2 }) => (
+      <View style={styles.toastError}>
+        <Text style={styles.toastText}>{text1}</Text>
+        {text2 && <Text style={styles.toastSubText}>{text2}</Text>}
+      </View>
+    ),
+  };
+
   return (
     <ParallaxScrollView headerBackgroundColor={{ light: '#fa0', dark: '#fa0' }}
       headerImage={
@@ -132,38 +249,44 @@ export default function HomeScreen() {
       {/* Teacher Name Input */}
       <View style={styles.teacherNameContainer}>
         <TextInput
+        className='teacherInput'
           placeholder="Enter Teacher's Name"
           style={styles.input}
           value={teacherName}
-          onChangeText={setTeacherName}
+          onChangeText={handleTeacherNameChange} // Use the updated handler
         />
       </View>
-      
+
       <ThemedView>
         <ScrollView style={styles.tableContainer} horizontal>
-          <form id="sheet">
+          <form action="" method="post" className="form">
             <table style={styles.table}>
               <thead>
                 <tr>
-                  <th><ThemedText>Name</ThemedText></th>
-                  <th><ThemedText>Class</ThemedText></th>
-                  <th><ThemedText>Team</ThemedText></th>
-                  <th><ThemedText>Remark</ThemedText></th>
+                  <th style={styles.header}><ThemedText>Name</ThemedText></th>
+                  <th style={styles.header}><ThemedText>Class</ThemedText></th>
+                  <th style={styles.header}><ThemedText>Team</ThemedText></th>
+                  <th style={styles.header}><ThemedText>Remark</ThemedText></th>
                 </tr>
               </thead>
-              <tbody>{Array.from({ length: 10 }).map((_, index) => renderRow(index + 1))}</tbody>
+              <tbody>{Array.from({ length: 10 }).map((_, id) => renderRow(id + 1))}</tbody>
             </table>
-            <View style={styles.submitButtonContainer}>
-              <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                <Text style={styles.submitButtonText}>Submit</Text>
-              </TouchableOpacity>
-            </View>
           </form>
         </ScrollView>
       </ThemedView>
+
+      <TouchableOpacity
+        style={styles.submitButton}
+        onPress={handleSubmit}
+      >
+        <Text style={styles.submitButtonText}>Submit</Text>
+      </TouchableOpacity>
+
+      <Toast config={toastConfig} />
     </ParallaxScrollView>
   );
 }
+
 
 const getStyles = (scheme: 'light' | 'dark') => StyleSheet.create({
   reactLogo: {
@@ -197,6 +320,9 @@ const getStyles = (scheme: 'light' | 'dark') => StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
   },
+  header:{
+    color: scheme === 'dark' ? '#fff' : '#000' // Text color based on theme
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -216,6 +342,8 @@ const getStyles = (scheme: 'light' | 'dark') => StyleSheet.create({
   submitButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 16
   },
   submitButton: {
     backgroundColor: '#fa0',
@@ -226,4 +354,26 @@ const getStyles = (scheme: 'light' | 'dark') => StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
   },
+  toastSuccess: {
+    backgroundColor: 'rgba(0, 200, 0, 0.8)',
+    borderRadius: 8,
+    padding: 10,
+    marginHorizontal: 20,
+  },
+  toastError: {
+    backgroundColor: 'rgba(200, 0, 0, 0.8)',
+    borderRadius: 8,
+    padding: 10,
+    marginHorizontal: 20,
+  },
+  toastText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  toastSubText: {
+    color: '#fff',
+    fontSize: 14,
+    marginTop: 5,
+  }
 });
