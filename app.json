@@ -25,7 +25,8 @@
         "babel": {
           "include": ["react-native-web"]
         }
-      }
+      },
+      "assetBundlePatterns": ["**/*"]
     },
     "plugins": [
       "expo-router",

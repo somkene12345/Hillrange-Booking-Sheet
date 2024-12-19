@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { Appearance, useColorScheme } from "react-native";
 import { Image, StyleSheet, ScrollView, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -10,7 +10,7 @@ import { database } from '../../firebaseConfig'; // Import the initialized datab
 import Toast from 'react-native-toast-message';
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme(); // Get the current color scheme
+  const colorScheme = useColorScheme() || Appearance.getColorScheme() || "light";
   const styles = getStyles(colorScheme);
   const navigation = useNavigation();
   const [teacherName, setTeacherName] = useState('');
