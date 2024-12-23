@@ -37,5 +37,5 @@ yarn-error.*
 app-example
 .env
 .gitignore
-node_modules
+/node_modules
 !dist/node_modules
