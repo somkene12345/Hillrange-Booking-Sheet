@@ -8,6 +8,19 @@
           "distDir": "dist"
         }
       }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "/dist/$1"
+      }
+    ],
+    "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "/:path*",
+        "destination": "/index.html"
+      }
     ]
   }
   

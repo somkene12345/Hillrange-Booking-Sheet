@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
-    "@expo/webpack-config": "^19.0.1",
     "@react-native-firebase/app": "^21.6.0",
     "@react-native-firebase/database": "^21.6.0",
     "@react-navigation/bottom-tabs": "^7.0.0",
