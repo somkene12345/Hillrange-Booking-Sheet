@@ -38,3 +38,5 @@ app-example
 .gitignore
 /node_modules
 !dist/node_modules
+
+.vercel
