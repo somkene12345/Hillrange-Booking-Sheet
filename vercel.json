@@ -6,6 +6,8 @@
     }
   ],
  "routes": [
+    { "src": "/explore", "dest": "/dist/explore.html" },
+    { "src": "/favicon.ico", "dest": "/dist/favicon.ico" },
     { "src": "/(.*)", "dest": "/dist/$1" }
   ]
 }
