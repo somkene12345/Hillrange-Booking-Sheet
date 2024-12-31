@@ -5,10 +5,9 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
-    }
+ "routes": [
+    { "src": "/explore", "dest": "/dist/explore.html" },
+    { "src": "/", "dest": "/dist/index.html" },
+    { "src": "/(.*)", "dest": "/dist/$1" }
   ]
 }
