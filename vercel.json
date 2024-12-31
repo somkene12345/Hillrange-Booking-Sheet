@@ -5,9 +5,10 @@
       "use": "@vercel/static"
     }
   ],
- "routes": [
-    { "src": "/explore", "dest": "/dist/explore.html" },
-    { "src": "/favicon.ico", "dest": "/dist/favicon.ico" },
-    { "src": "/(.*)", "dest": "/dist/$1" }
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/dist/$1"
+    }
   ]
 }
