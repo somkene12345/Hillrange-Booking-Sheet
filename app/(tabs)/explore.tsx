@@ -176,7 +176,7 @@ const getStyles = (dark: boolean) =>
       flexDirection: 'row',
       backgroundColor: dark ? '#1f1f1f' : '#e6e6e6',
       borderRadius: 6,
-      width: '100%'
+      width: '100%',
       borderColor: dark ? '#333' : '#ccc',
 
 
