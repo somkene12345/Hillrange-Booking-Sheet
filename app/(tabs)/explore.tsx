@@ -175,7 +175,7 @@ const getStyles = (dark: boolean) =>
     },
     table: {
     padding: 10,
-  backgroundColor: dark ? '#1e1e1e' : '#f5f5f5',
+    backgroundColor: dark ? '#1e1e1e' : '#f5f5f5',
   marginBottom: 10,
   borderRadius: 5,
 },
