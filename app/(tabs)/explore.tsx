@@ -118,28 +118,30 @@ const ExplorePage: React.FC = () => {
         </Text>
       )}
 
-      {/* Table */}
-      <ScrollView horizontal style={{flex: 1,width: '100%',}}>
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.headerCell}>Student</Text>
-            <Text style={styles.headerCell}>Teacher</Text>
-            <Text style={styles.headerCell}>Class</Text>
-            <Text style={styles.headerCell}>Team</Text>
-            <Text style={styles.headerCell}>Remark</Text>
-          </View>
-          <ScrollView style={{ maxHeight: 300 }}>
-            {bookingData.map((item, index) => (
-              <View style={styles.tableRow} key={index}>
-                <Text style={styles.cell}>{item.name}</Text>
-                <Text style={styles.cell}>{item.teacherName}</Text>
-                <Text style={styles.cell}>{item.class}</Text>
-                <Text style={styles.cell}>{item.team}</Text>
-                <Text style={styles.cell}>{item.remark}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+{/* Table */}
+<View style={styles.table}>
+  {/* Header */}
+  <View style={styles.tableHeader}>
+    <Text style={[styles.headerCell, { flex: 2 }]}>Student</Text>
+    <Text style={[styles.headerCell, { flex: 2 }]}>Teacher</Text>
+    <Text style={[styles.headerCell, { flex: 1 }]}>Class</Text>
+    <Text style={[styles.headerCell, { flex: 1 }]}>Team</Text>
+    <Text style={[styles.headerCell, { flex: 3 }]}>Remark</Text>
+  </View>
+
+  {/* Scrollable body */}
+  <ScrollView style={{ maxHeight: 300 }}>
+    {bookingData.map((item, index) => (
+      <View style={styles.tableRow} key={index}>
+        <Text style={[styles.cell, { flex: 2 }]}>{item.name}</Text>
+        <Text style={[styles.cell, { flex: 2 }]}>{item.teacherName}</Text>
+        <Text style={[styles.cell, { flex: 1 }]}>{item.class}</Text>
+        <Text style={[styles.cell, { flex: 1 }]}>{item.team}</Text>
+        <Text style={[styles.cell, { flex: 3 }]}>{item.remark}</Text>
+      </View>
+    ))}
+  </ScrollView>
+</View>
       </ScrollView>
     </View>
   );
@@ -172,36 +174,33 @@ const getStyles = (dark: boolean) =>
       marginBottom: 10,
       fontWeight: 'bold',
     },
-    tableHeader: {
-      backgroundColor: dark ? '#1f1f1f' : '#e6e6e6',
-      borderTopRadius: 6,
-      borderColor: dark ? '#333' : '#ccc',
-
-
-    },
-    headerCell: {
-      flex: 1,
-      padding: 8,
-      fontWeight: 'bold',
-      color: dark ? '#fff' : '#000',
-    },
-    tableRow: {
-      flexDirection: 'row',
-      borderBottomWidth: 1,
-      borderColor: dark ? '#333' : '#ccc',
-    },
-    cell: {
-      flex: 1,
-      padding: 8,
-      color: dark ? '#ccc' : '#333',
-    },
     table: {
-      width: "100%",
-      padding: 10,
-      backgroundColor: dark ? '#1e1e1e' : '#f5f5f5',
-      marginBottom: 10,
-      borderRadius: 5,
-    }
+  alignSelf: 'stretch',
+  backgroundColor: dark ? '#1e1e1e' : '#f5f5f5',
+  marginBottom: 10,
+  borderRadius: 5,
+  overflow: 'hidden'
+},
+tableHeader: {
+  flexDirection: 'row',
+  backgroundColor: dark ? '#1f1f1f' : '#e6e6e6',
+  borderColor: dark ? '#333' : '#ccc',
+  borderBottomWidth: 1
+},
+headerCell: {
+  padding: 8,
+  fontWeight: 'bold',
+  color: dark ? '#fff' : '#000',
+},
+tableRow: {
+  flexDirection: 'row',
+  borderBottomWidth: 1,
+  borderColor: dark ? '#333' : '#ccc',
+},
+cell: {
+  padding: 8,
+  color: dark ? '#ccc' : '#333',
+},
   });
 
 export default ExplorePage;
