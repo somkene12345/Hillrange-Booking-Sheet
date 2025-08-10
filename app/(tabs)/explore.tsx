@@ -141,7 +141,7 @@ const ExplorePage: React.FC = () => {
       </View>
     ))}
   </ScrollView>
-      </ScrollView>
+    </View>
     </View>
   );
 };
