@@ -119,7 +119,7 @@ const ExplorePage: React.FC = () => {
       )}
 
       {/* Table */}
-      <ScrollView horizontal>
+      <ScrollView horizontal style={{flex: 1,}}>
         <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={styles.headerCell}>Student</Text>
@@ -196,7 +196,7 @@ const getStyles = (dark: boolean) =>
       color: dark ? '#ccc' : '#333',
     },
     table: {
-      padding: 10,
+      width: '100%',
       borderRadius: '6',
     }
   });
