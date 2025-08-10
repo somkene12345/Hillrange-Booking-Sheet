@@ -196,7 +196,7 @@ const getStyles = (dark: boolean) =>
       color: dark ? '#ccc' : '#333',
     },
     table: {
-      padding: 10
+      padding: 10,
       borderRadius: '6',
     }
   });
