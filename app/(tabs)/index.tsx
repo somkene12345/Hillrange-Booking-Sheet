@@ -64,7 +64,7 @@ useEffect(() => {
 
   // Update teacherId when teacherName changes
 const handleTeacherNameChange = (text) => {
-  const trimmedText = text.trim();
+  const trimmedText = text;
   setTeacherName(trimmedText);
 
   const matchedTeacher = teachers.find(
@@ -103,7 +103,7 @@ const handleSubmit = async () => {
     return;
   }
 
-  if (!teacherName.trim()) {
+  if (!teacherName) {
     Toast.show({
       type: 'error',
       text1: 'Teacher Error',
@@ -116,7 +116,7 @@ const handleSubmit = async () => {
 
   // Save teacher name locally
   try {
-    await AsyncStorage.setItem('teacherName', teacherName.trim());
+    await AsyncStorage.setItem('teacherName', teacherName);
   } catch (err) {
     console.error('Error saving teacherName to storage:', err);
   }
@@ -129,7 +129,7 @@ const handleSubmit = async () => {
       remark: row.remark,
       class: row.class,
       team: row.team,
-      teacherName: teacherName.trim(),
+      teacherName: teacherName,
       date: timestamp,
     };
 
@@ -169,14 +169,14 @@ const handleSubmit = async () => {
 
   if (!teacherExists) {
     push(ref(database, 'bookings/teachers'), {
-      teacherName: teacherName.trim(),
+      teacherName: teacherName,
       dateAdded: timestamp,
     })
       .then(() => {
         Toast.show({
           type: 'success',
           text1: 'Teacher Added',
-          text2: teacherName.trim(),
+          text2: teacherName,
           position: 'bottom',
           bottomOffset: 50,
         });
