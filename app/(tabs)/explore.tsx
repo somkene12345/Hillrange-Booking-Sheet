@@ -196,7 +196,7 @@ const getStyles = (dark: boolean) =>
       color: dark ? '#ccc' : '#333',
     },
     table: {
-      width: '100%',
+      padding: 10
       borderRadius: '6',
     }
   });
