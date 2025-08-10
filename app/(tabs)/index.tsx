@@ -3,7 +3,7 @@ import { Appearance, useColorScheme } from "react-native";
 import { Image, StyleSheet, ScrollView, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-impoapp/explore.tsx app/index.tsxrt { ThemedText } from '@/components/ThemedText';
+import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ref, push, get } from 'firebase/database'; // Import Firebase methods
 import { database } from '../../firebaseConfig'; // Import the initialized database
