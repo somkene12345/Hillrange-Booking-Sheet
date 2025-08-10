@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity
 import { ref, onValue } from 'firebase/database';
 import { database } from '../../firebaseConfig';
 import { useTheme } from '../../theme/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ExplorePage: React.FC = () => {
   const { darkMode, toggleTheme } = useTheme();
   const [bookingData, setBookingData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [weeklyStats, setWeeklyStats] = useState<{ [cls: string]: number }>({});
+  const [weeklyStats, setWeeklyStats] = useState<{ [cls: string]: { current: number, prev: number } }>({});
   const [detentions, setDetentions] = useState<string[]>([]);
 
   const styles = getStyles(darkMode);
@@ -60,27 +61,25 @@ const ExplorePage: React.FC = () => {
 
         if (bookingDate >= weekAgo) {
           currentWeek[className] = (currentWeek[className] || 0) + 1;
+          studentCount[row.name] = (studentCount[row.name] || 0) + 1;
         } else if (bookingDate >= prevWeekAgo && bookingDate < weekAgo) {
           prevWeek[className] = (prevWeek[className] || 0) + 1;
-        }
-
-        // Detention check
-        if (bookingDate >= weekAgo) {
-          studentCount[row.name] = (studentCount[row.name] || 0) + 1;
         }
       });
 
       setWeeklyStats(
         Object.fromEntries(
-          Object.keys(currentWeek).map(cls => [
+          Object.keys({ ...currentWeek, ...prevWeek }).map(cls => [
             cls,
-            currentWeek[cls] - (prevWeek[cls] || 0)
+            {
+              current: currentWeek[cls] || 0,
+              prev: prevWeek[cls] || 0
+            }
           ])
         )
       );
 
       setDetentions(Object.keys(studentCount).filter(name => studentCount[name] >= 3));
-
       setLoading(false);
     });
 
@@ -97,17 +96,18 @@ const ExplorePage: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.themeButton} onPress={toggleTheme}>
-        <Text style={styles.themeButtonText}>
-          Switch to {darkMode ? 'Light' : 'Dark'} Mode
+      {/* Sun/Moon Toggle */}
+      <TouchableOpacity onPress={toggleTheme} style={{ marginBottom: 12, alignSelf: 'flex-end' }}>
+        <Text style={{ fontSize: 20 }}>
+          {darkMode ? "🌞" : "🌙"}
         </Text>
       </TouchableOpacity>
 
       {/* Analysis Bar */}
       <View style={styles.analysisBar}>
-        {Object.entries(weeklyStats).map(([cls, diff], i) => (
+        {Object.entries(weeklyStats).map(([cls, stats], i) => (
           <Text key={i} style={styles.analysisText}>
-            {cls}: {diff >= 0 ? `+${diff}` : diff} bookings vs last week
+            {cls}: {stats.current} this week ({stats.current - stats.prev >= 0 ? '+' : ''}{stats.current - stats.prev} vs last week)
           </Text>
         ))}
       </View>
@@ -129,17 +129,8 @@ const ExplorePage: React.FC = () => {
             <Text style={styles.headerCell}>Remark</Text>
           </View>
           <ScrollView style={{ maxHeight: 300 }}>
-            {bookingData.slice(0, 3).map((item, index) => (
+            {bookingData.map((item, index) => (
               <View style={styles.tableRow} key={index}>
-                <Text style={styles.cell}>{item.name}</Text>
-                <Text style={styles.cell}>{item.teacherName}</Text>
-                <Text style={styles.cell}>{item.class}</Text>
-                <Text style={styles.cell}>{item.team}</Text>
-                <Text style={styles.cell}>{item.remark}</Text>
-              </View>
-            ))}
-            {bookingData.slice(3).map((item, index) => (
-              <View style={styles.tableRow} key={index + 3}>
                 <Text style={styles.cell}>{item.name}</Text>
                 <Text style={styles.cell}>{item.teacherName}</Text>
                 <Text style={styles.cell}>{item.class}</Text>
@@ -165,15 +156,6 @@ const getStyles = (dark: boolean) =>
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-    },
-    themeButton: {
-      padding: 10,
-      backgroundColor: dark ? '#333' : '#ddd',
-      borderRadius: 5,
-      marginBottom: 15,
-    },
-    themeButtonText: {
-      color: dark ? '#fff' : '#000',
     },
     analysisBar: {
       padding: 10,

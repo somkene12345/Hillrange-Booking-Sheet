@@ -8,13 +8,31 @@ import { ThemedView } from '@/components/ThemedView';
 import { ref, push, get } from 'firebase/database'; // Import Firebase methods
 import { database } from '../../firebaseConfig'; // Import the initialized database
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme() || Appearance.getColorScheme() || "light";
-  const styles = getStyles(colorScheme);
+  const { darkMode, toggleTheme } = useTheme();
+  const styles = getStyles(darkMode);
   const navigation = useNavigation();
-  const [teacherName, setTeacherName] = useState('');
-  const [teacherId, setTeacherId] = useState(null); // To store the teacher ID
+const [teachers, setTeachers] = useState([]);
+const [loading, setLoading] = useState(true);
+const [teacherName, setTeacherName] = useState('');
+const [teacherId, setTeacherId] = useState(null);
+
+// Prefill teacherName from AsyncStorage
+useEffect(() => {
+  const loadTeacherName = async () => {
+    try {
+      const storedName = await AsyncStorage.getItem('teacherName');
+      if (storedName) setTeacherName(storedName);
+    } catch (err) {
+      console.error('Error loading stored teacherName:', err);
+    }
+  };
+  loadTeacherName();
+}, []);
+
   const [rows, setRows] = useState(
     Array.from({ length: 1 }, () => ({
       name: '',
@@ -24,8 +42,7 @@ export default function HomeScreen() {
     }))
   );
 
-  const [teachers, setTeachers] = useState([]);
-  const [loading, setLoading] = useState(true);
+
 
   // Fetch teacher data from Firebase on mount
   useEffect(() => {
@@ -45,21 +62,21 @@ export default function HomeScreen() {
   }, []);
 
   // Update teacherId when teacherName changes
-  const handleTeacherNameChange = (text) => {
-    const trimmedText = text.trim(); // Trim any unnecessary spaces
-    setTeacherName(trimmedText);
-  
-    // Check for matching teacher name (case insensitive)
-    const matchedTeacher = teachers.find(
-      (teacher) => teacher.teacherName.toLowerCase() === trimmedText.toLowerCase()
-    );
-  
-    if (matchedTeacher) {
-      setTeacherId(trimmedText); // Use teacherName as a placeholder "teacherId"
-    } else {
-      setTeacherId(null); // Reset if no match
-    }
-  };
+const handleTeacherNameChange = (text) => {
+  const trimmedText = text.trim();
+  setTeacherName(trimmedText);
+
+  const matchedTeacher = teachers.find(
+    (teacher) =>
+      teacher.teacherName.toLowerCase() === trimmedText.toLowerCase()
+  );
+
+  if (matchedTeacher) {
+    setTeacherId(trimmedText);
+  } else {
+    setTeacherId(null);
+  }
+};
   
 
   const handleInputChange = (index: number, field: string, value: string) => {
@@ -68,99 +85,113 @@ export default function HomeScreen() {
     setRows(updatedRows);
   };
 
-  const handleSubmit = () => {
-    const bookingsRef = ref(database, 'bookings/data');
-    const validRows = rows.filter(row => row.name && row.remark); // Filter valid rows
-    let successCount = 0;
-    let errorCount = 0;
-  
-    if (validRows.length === 0) {
-      Toast.show({
-        type: 'error',
-        text1: 'Submission Error',
-        text2: 'No valid data to submit.',
-        position: 'bottom',
-        bottomOffset: 50,
-      });
-      return;
-    }
-  
-    if (!teacherName.trim()) {
-      Toast.show({
-        type: 'error',
-        text1: 'Teacher Error',
-        text2: 'Please enter a teacher name.',
-        position: 'bottom',
-        bottomOffset: 50,
-      });
-      return;
-    }
-  
-    validRows.forEach((row) => {
-      const newBooking = {
-        name: row.name,
-        remark: row.remark,
-        class: row.class,
-        team: row.team,
-        teacherName: teacherName.trim(), // Use teacherName directly
-      };
-  
-      push(bookingsRef, newBooking)
-        .then(() => {
-          successCount++;
-          if (successCount + errorCount === validRows.length) {
-            Toast.show({
-              type: 'success',
-              text1: 'Submission Successful',
-              text2: `${successCount} booking(s) added successfully.`,
-              position: 'bottom',
-              bottomOffset: 50,
-            });
-            navigation.navigate('explore');
-          }
-        })
-        .catch((error) => {
-          errorCount++;
-          if (successCount + errorCount === validRows.length) {
-            Toast.show({
-              type: 'error',
-              text1: 'Submission Error',
-              text2: `${errorCount} booking(s) failed to add.`,
-              position: 'bottom',
-              bottomOffset: 50,
-            });
-          }
-        });
+const handleSubmit = async () => {
+  const bookingsRef = ref(database, 'bookings/data');
+  const validRows = rows.filter((row) => row.name && row.remark);
+  let successCount = 0;
+  let errorCount = 0;
+
+  if (validRows.length === 0) {
+    Toast.show({
+      type: 'error',
+      text1: 'Submission Error',
+      text2: 'No valid data to submit.',
+      position: 'bottom',
+      bottomOffset: 50,
     });
-  
-    // Optionally add the teacherName to Firebase if it's not already there
-    const teacherExists = teachers.some(
-      (teacher) => teacher.teacherName.toLowerCase() === teacherName.toLowerCase()
-    );
-  
-    if (!teacherExists) {
-      push(ref(database, 'bookings/teachers'), { teacherName: teacherName.trim() })
-        .then(() => {
+    return;
+  }
+
+  if (!teacherName.trim()) {
+    Toast.show({
+      type: 'error',
+      text1: 'Teacher Error',
+      text2: 'Please enter a teacher name.',
+      position: 'bottom',
+      bottomOffset: 50,
+    });
+    return;
+  }
+
+  // Save teacher name locally
+  try {
+    await AsyncStorage.setItem('teacherName', teacherName.trim());
+  } catch (err) {
+    console.error('Error saving teacherName to storage:', err);
+  }
+
+  const timestamp = new Date().toISOString();
+
+  validRows.forEach((row) => {
+    const newBooking = {
+      name: row.name,
+      remark: row.remark,
+      class: row.class,
+      team: row.team,
+      teacherName: teacherName.trim(),
+      date: timestamp,
+    };
+
+    push(bookingsRef, newBooking)
+      .then(() => {
+        successCount++;
+        if (successCount + errorCount === validRows.length) {
           Toast.show({
             type: 'success',
-            text1: 'Teacher Added',
-            text2: teacherName.trim(),
+            text1: 'Submission Successful',
+            text2: `${successCount} booking(s) added successfully.`,
             position: 'bottom',
             bottomOffset: 50,
           });
-        })
-        .catch((error) => {
-          console.error('Error adding teacher:', error);
+          navigation.navigate('explore');
+        }
+      })
+      .catch(() => {
+        errorCount++;
+        if (successCount + errorCount === validRows.length) {
           Toast.show({
             type: 'error',
-            text1: 'Teacher Submission Failed',
-            text2: error.message,
+            text1: 'Submission Error',
+            text2: `${errorCount} booking(s) failed to add.`,
             position: 'bottom',
             bottomOffset: 50,
           });
+        }
+      });
+  });
+
+  // Add teacher entry if new
+  const teacherExists = teachers.some(
+    (teacher) =>
+      teacher.teacherName.toLowerCase() === teacherName.toLowerCase()
+  );
+
+  if (!teacherExists) {
+    push(ref(database, 'bookings/teachers'), {
+      teacherName: teacherName.trim(),
+      dateAdded: timestamp,
+    })
+      .then(() => {
+        Toast.show({
+          type: 'success',
+          text1: 'Teacher Added',
+          text2: teacherName.trim(),
+          position: 'bottom',
+          bottomOffset: 50,
         });
-    }
-  };
+      })
+      .catch((error) => {
+        console.error('Error adding teacher:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Teacher Submission Failed',
+          text2: error.message,
+          position: 'bottom',
+          bottomOffset: 50,
+        });
+      });
+  }
+};
   
   
 
@@ -288,7 +319,7 @@ export default function HomeScreen() {
 }
 
 
-const getStyles = (scheme: 'light' | 'dark') => StyleSheet.create({
+const getStyles = (dark: boolean) => StyleSheet.create({
   reactLogo: {
     height: 178,
     width: 290,
@@ -321,23 +352,23 @@ const getStyles = (scheme: 'light' | 'dark') => StyleSheet.create({
     padding: 10,
   },
   header:{
-    color: scheme === 'dark' ? '#fff' : '#000' // Text color based on theme
+    color: dark ? '#fff' : '#000' // Text color based on theme
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 5,
     borderRadius: 4,
-    color: scheme === 'dark' ? '#fff' : '#000', // Text color based on theme
-    backgroundColor: scheme === 'dark' ? '#333' : '#fff', // Input background
+    color: dark ? '#fff' : '#000', // Text color based on theme
+    backgroundColor: dark ? '#333' : '#fff', // Input background
   },
   select: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 5,
     borderRadius: 4,
-    color: scheme === 'dark' ? '#fff' : '#000', // Dropdown text color
-    backgroundColor: scheme === 'dark' ? '#333' : '#fff', // Dropdown background
+    color: dark ? '#fff' : '#000', // Dropdown text color
+    backgroundColor: dark ? '#333' : '#fff', // Dropdown background
   },
   submitButtonText: {
     color: '#fff',
