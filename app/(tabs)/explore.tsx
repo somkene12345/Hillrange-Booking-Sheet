@@ -120,7 +120,7 @@ const ExplorePage: React.FC = () => {
 
       {/* Table */}
       <ScrollView horizontal>
-        <View>
+        <View style={styles.table}>
           <View style={styles.tableHeader}>
             <Text style={styles.headerCell}>Student</Text>
             <Text style={styles.headerCell}>Teacher</Text>
@@ -173,10 +173,8 @@ const getStyles = (dark: boolean) =>
       fontWeight: 'bold',
     },
     tableHeader: {
-      flexDirection: 'row',
       backgroundColor: dark ? '#1f1f1f' : '#e6e6e6',
-      borderRadius: 6,
-      width: '100%',
+      borderTopRadius: 6,
       borderColor: dark ? '#333' : '#ccc',
 
 
@@ -190,13 +188,18 @@ const getStyles = (dark: boolean) =>
     tableRow: {
       flexDirection: 'row',
       borderBottomWidth: 1,
-      borderBottomColor: dark ? '#333' : '#ccc',
+      borderColor: dark ? '#333' : '#ccc',
     },
     cell: {
       flex: 1,
       padding: 8,
       color: dark ? '#ccc' : '#333',
     },
+    table: {
+      width: '100%',
+      alignSelf: 'stretch',
+      borderRadius: '6',
+    }
   });
 
 export default ExplorePage;
