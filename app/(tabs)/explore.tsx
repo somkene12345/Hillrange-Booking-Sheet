@@ -197,7 +197,6 @@ const getStyles = (dark: boolean) =>
     },
     table: {
       width: '100%',
-      alignSelf: 'stretch',
       borderRadius: '6',
     }
   });
