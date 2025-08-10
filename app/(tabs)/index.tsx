@@ -144,7 +144,6 @@ const handleSubmit = async () => {
             position: 'bottom',
             bottomOffset: 50,
           });
-          navigation.navigate('explore');
         }
       })
       .catch(() => {

@@ -141,7 +141,6 @@ const ExplorePage: React.FC = () => {
       </View>
     ))}
   </ScrollView>
-</View>
       </ScrollView>
     </View>
   );
@@ -175,17 +174,16 @@ const getStyles = (dark: boolean) =>
       fontWeight: 'bold',
     },
     table: {
-  alignSelf: 'stretch',
+    padding: 10,
   backgroundColor: dark ? '#1e1e1e' : '#f5f5f5',
   marginBottom: 10,
   borderRadius: 5,
-  overflow: 'hidden'
 },
 tableHeader: {
   flexDirection: 'row',
   backgroundColor: dark ? '#1f1f1f' : '#e6e6e6',
   borderColor: dark ? '#333' : '#ccc',
-  borderBottomWidth: 1
+  borderBottomWidth: 1,
 },
 headerCell: {
   padding: 8,
