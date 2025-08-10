@@ -3,7 +3,7 @@ import { Appearance, useColorScheme } from "react-native";
 import { Image, StyleSheet, ScrollView, TextInput, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
+impoapp/explore.tsx app/index.tsxrt { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ref, push, get } from 'firebase/database'; // Import Firebase methods
 import { database } from '../../firebaseConfig'; // Import the initialized database
@@ -16,7 +16,7 @@ export default function HomeScreen() {
   const [teacherName, setTeacherName] = useState('');
   const [teacherId, setTeacherId] = useState(null); // To store the teacher ID
   const [rows, setRows] = useState(
-    Array.from({ length: 10 }, () => ({
+    Array.from({ length: 1 }, () => ({
       name: '',
       class: 'JS1A',
       team: 'amazon',
@@ -269,7 +269,7 @@ export default function HomeScreen() {
                   <th style={styles.header}><ThemedText>Remark</ThemedText></th>
                 </tr>
               </thead>
-              <tbody>{Array.from({ length: 10 }).map((_, id) => renderRow(id + 1))}</tbody>
+              <tbody>{Array.from({ length: 1 }).map((_, id) => renderRow(id + 1))}</tbody>
             </table>
           </form>
         </ScrollView>
