@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { ref, onValue } from 'firebase/database';
 import { database } from '../../firebaseConfig';
-import { useTheme } from '../../theme/themeContent';
+import { useTheme } from '../../theme/ThemeContext';
 
 const ExplorePage: React.FC = () => {
   const { darkMode, toggleTheme } = useTheme();
