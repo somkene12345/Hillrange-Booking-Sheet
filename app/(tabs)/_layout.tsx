@@ -2,8 +2,8 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import HomeScreen as Sheet from './index';
-import ExplorePage as Analysis from './explore';
+import HomeScreen from './index';
+import ExplorePage from './explore';
 import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
 
 const Drawer = createDrawerNavigator();
@@ -38,8 +38,8 @@ export default function RootLayout() {
           ),
         }}
       >
-        <Drawer.Screen name="Sheet" component={Sheet} />
-        <Drawer.Screen name="Analysis" component={Analysis} />
+        <Drawer.Screen name="Sheet" component={HomeScreen} />
+        <Drawer.Screen name="Analysis" component={ExplorePage} />
       </Drawer.Navigator>
     </View>
   );
