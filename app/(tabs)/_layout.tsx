@@ -74,14 +74,12 @@ function DrawerWrapper({ navigation }: any) {
 export default function Layout() {
   return (
     <ThemeProvider>
-      <NavigationContainer>
         <Drawer.Navigator
           drawerContent={(props) => <CustomDrawerContent {...props} />}
           screenOptions={{ headerShown: false }}
         >
           <Drawer.Screen name="MainTabs" component={DrawerWrapper} />
         </Drawer.Navigator>
-      </NavigationContainer>
     </ThemeProvider>
   );
 }
