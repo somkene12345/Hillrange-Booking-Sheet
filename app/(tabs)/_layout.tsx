@@ -1,101 +1,57 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import React from 'react';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
-import { NavigationContainer } from '@react-navigation/native';
-import HomeScreen from './index';
-import ExplorePage from './explore';
+import HomeScreen as Sheet from './index';
+import ExplorePage as Analysis from './explore';
+import { useTheme } from '../../ThemeContext';
 
 const Drawer = createDrawerNavigator();
-const Tab = createMaterialTopTabNavigator();
 
-function TopTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarIndicatorStyle: { backgroundColor: '#fa0' },
-      }}
-    >
-      <Tab.Screen name="Sheet" component={HomeScreen} />
-      <Tab.Screen name="Analysis" component={ExplorePage} />
-    </Tab.Navigator>
-  );
-}
-
-function CustomDrawerContent(props: any) {
-  return (
-    <DrawerContentScrollView {...props}>
-      <DrawerItem
-        label="Sheet"
-        onPress={() => props.navigation.navigate('MainTabs', { screen: 'Sheet' })}
-      />
-      <DrawerItem
-        label="Analysis"
-        onPress={() => props.navigation.navigate('MainTabs', { screen: 'Analysis' })}
-      />
-    </DrawerContentScrollView>
-  );
-}
-
-function DrawerWrapper({ navigation }: any) {
+export default function RootLayout() {
   const { darkMode, toggleTheme } = useTheme();
-
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Top Bar */}
-      <View style={styles.topBar}>
-        {/* Hamburger Menu */}
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Ionicons name="menu" size={28} color={darkMode ? '#fff' : '#000'} />
-        </TouchableOpacity>
-
-        <Text style={styles.topBarTitle}>Mednote Style</Text>
-
-        {/* Theme Toggle */}
-        <TouchableOpacity onPress={toggleTheme}>
-          <Ionicons
-            name={darkMode ? 'sunny-outline' : 'moon-outline'}
-            size={26}
-            color={darkMode ? '#ffd700' : '#555'}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* Tabs */}
-      <TopTabs />
-
+      <Drawer.Navigator
+        initialRouteName="Sheet"
+        screenOptions={{
+          drawerStyle: {
+            backgroundColor: darkMode ? '#222' : '#fff',
+            width: 250,
+          },
+          headerStyle: {
+            backgroundColor: darkMode ? '#222' : '#fff',
+          },
+          headerTintColor: darkMode ? '#fff' : '#000',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={toggleTheme}
+              style={{ paddingRight: 15 }}
+            >
+              <Ionicons
+                name={darkMode ? 'sunny-outline' : 'moon-outline'}
+                size={26}
+                color={darkMode ? '#ffd700' : '#555'}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      >
+        <Drawer.Screen name="Sheet" component={Sheet} />
+        <Drawer.Screen name="Analysis" component={Analysis} />
+      </Drawer.Navigator>
     </View>
   );
 }
 
-export default function Layout() {
-  return (
-    <ThemeProvider>
-        <Drawer.Navigator
-          drawerContent={(props) => <CustomDrawerContent {...props} />}
-          screenOptions={{ headerShown: false }}
-        >
-          <Drawer.Screen name="MainTabs" component={DrawerWrapper} />
-        </Drawer.Navigator>
-    </ThemeProvider>
-  );
-}
-
 const styles = StyleSheet.create({
-  topBar: {
-    height: 50,
-    backgroundColor: '#fa0',
-    flexDirection: 'row',
+  footer: {
+    height: 28,
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-  },
-  topBarTitle: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#000',
+    backgroundColor: '#f8f8f8',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
   },
 });
