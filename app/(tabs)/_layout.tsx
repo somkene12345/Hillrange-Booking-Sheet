@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './index';
 import ExplorePage from './explore';
-import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
+import { ThemeProvider } from '../../theme/ThemeContext';
 
 const Drawer = createDrawerNavigator();
 
