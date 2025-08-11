@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemeProvider, useTheme } from '../theme/ThemeContext';
+import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
 import { NavigationContainer } from '@react-navigation/native';
 import HomeScreen from './index';
 import ExplorePage from './explore';
