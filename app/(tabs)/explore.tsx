@@ -4,6 +4,7 @@ import { ref, onValue } from 'firebase/database';
 import { database } from '../../firebaseConfig';
 import { useTheme } from '../../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DELETE_PASSWORD } from '@env';
 
 const ExplorePage: React.FC = () => {
   const { darkMode, toggleTheme } = useTheme();
@@ -28,9 +29,24 @@ const ExplorePage: React.FC = () => {
       const teachers = data.teachers || {};
       const bookings = data.data || {};
 
-      const todayStr = new Date().toISOString().split('T')[0];
-      const todayBookings = Object.values(bookings)
-        .filter((row: any) => row.name && row.remark && row.date?.startsWith(todayStr))
+      // Week range
+      const now = new Date();
+      const weekAgo = new Date();
+      weekAgo.setDate(now.getDate() - 7);
+      const prevWeekAgo = new Date();
+      prevWeekAgo.setDate(now.getDate() - 14);
+
+      let currentWeek: { [cls: string]: number } = {};
+      let prevWeek: { [cls: string]: number } = {};
+      let studentCount: { [name: string]: number } = {};
+
+      // Collect this week's bookings (and stats)
+      const thisWeeksBookings = Object.values(bookings)
+        .filter((row: any) => {
+          if (!row.name || !row.date) return false;
+          const bookingDate = new Date(row.date);
+          return bookingDate >= weekAgo; // only this week's
+        })
         .map((row: any) => {
           let matchedTeacher = 'Unknown';
           for (const key in teachers) {
@@ -39,21 +55,18 @@ const ExplorePage: React.FC = () => {
               break;
             }
           }
-          return { ...row, teacherName: matchedTeacher };
-        });
+          return {
+            ...row,
+            teacherName: matchedTeacher,
+            date: row.date,
+            time: row.time || new Date(row.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+        })
+        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()); // newest first
 
-      setBookingData(todayBookings);
+      setBookingData(thisWeeksBookings);
 
-      // Weekly analysis
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const prevWeekAgo = new Date();
-      prevWeekAgo.setDate(prevWeekAgo.getDate() - 14);
-
-      let currentWeek: { [cls: string]: number } = {};
-      let prevWeek: { [cls: string]: number } = {};
-      let studentCount: { [name: string]: number } = {};
-
+      // Calculate stats
       Object.values(bookings).forEach((row: any) => {
         if (!row.name || !row.class || !row.date) return;
         const bookingDate = new Date(row.date);
@@ -96,14 +109,14 @@ const ExplorePage: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Sun/Moon Toggle */}
+      {/* Theme Toggle */}
       <TouchableOpacity onPress={toggleTheme} style={{ marginBottom: 12, alignSelf: 'flex-end' }}>
         <Text style={{ fontSize: 20 }}>
           {darkMode ? "🌞" : "🌙"}
         </Text>
       </TouchableOpacity>
 
-      {/* Analysis Bar */}
+      {/* Weekly Stats */}
       <View style={styles.analysisBar}>
         {Object.entries(weeklyStats).map(([cls, stats], i) => (
           <Text key={i} style={styles.analysisText}>
@@ -118,33 +131,36 @@ const ExplorePage: React.FC = () => {
         </Text>
       )}
 
-{/* Table */}
-<View style={styles.table}>
-  {/* Header */}
-  <View style={styles.tableHeader}>
-    <Text style={[styles.headerCell, { flex: 2 }]}>Student</Text>
-    <Text style={[styles.headerCell, { flex: 2 }]}>Teacher</Text>
-    <Text style={[styles.headerCell, { flex: 1 }]}>Class</Text>
-    <Text style={[styles.headerCell, { flex: 1 }]}>Team</Text>
-    <Text style={[styles.headerCell, { flex: 3 }]}>Remark</Text>
-  </View>
+      {/* Table */}
+      <View style={styles.table}>
+        <View style={styles.tableHeader}>
+          <Text style={[styles.headerCell, { flex: 2 }]}>Student</Text>
+          <Text style={[styles.headerCell, { flex: 2 }]}>Teacher</Text>
+          <Text style={[styles.headerCell, { flex: 1 }]}>Class</Text>
+          <Text style={[styles.headerCell, { flex: 1 }]}>Team</Text>
+          <Text style={[styles.headerCell, { flex: 2 }]}>Date</Text>
+          <Text style={[styles.headerCell, { flex: 1 }]}>Time</Text>
+          <Text style={[styles.headerCell, { flex: 3 }]}>Remark</Text>
+        </View>
 
-  {/* Scrollable body */}
-  <ScrollView style={{ maxHeight: 300 }}>
-    {bookingData.map((item, index) => (
-      <View style={styles.tableRow} key={index}>
-        <Text style={[styles.cell, { flex: 2 }]}>{item.name}</Text>
-        <Text style={[styles.cell, { flex: 2 }]}>{item.teacherName}</Text>
-        <Text style={[styles.cell, { flex: 1 }]}>{item.class}</Text>
-        <Text style={[styles.cell, { flex: 1 }]}>{item.team}</Text>
-        <Text style={[styles.cell, { flex: 3 }]}>{item.remark}</Text>
+        <ScrollView style={{ maxHeight: 300 }}>
+          {bookingData.map((item, index) => (
+            <View style={styles.tableRow} key={index}>
+              <Text style={[styles.cell, { flex: 2 }]}>{item.name}</Text>
+              <Text style={[styles.cell, { flex: 2 }]}>{item.teacherName}</Text>
+              <Text style={[styles.cell, { flex: 1 }]}>{item.class}</Text>
+              <Text style={[styles.cell, { flex: 1 }]}>{item.team}</Text>
+              <Text style={[styles.cell, { flex: 2 }]}>{item.date}</Text>
+              <Text style={[styles.cell, { flex: 1 }]}>{item.time}</Text>
+              <Text style={[styles.cell, { flex: 3 }]}>{item.remark}</Text>
+            </View>
+          ))}
+        </ScrollView>
       </View>
-    ))}
-  </ScrollView>
-    </View>
     </View>
   );
 };
+
 
 const getStyles = (dark: boolean) =>
   StyleSheet.create({
