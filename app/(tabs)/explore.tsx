@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import { ref, onValue } from 'firebase/database';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
+import { ref, onValue, remove } from 'firebase/database';
 import { database } from '../../firebaseConfig';
 import { useTheme } from '../../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DELETE_PASSWORD } from '@env';
 
 const ExplorePage: React.FC = () => {
-  const { darkMode, toggleTheme } = useTheme();
+  const { darkMode } = useTheme();
   const [bookingData, setBookingData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [weeklyStats, setWeeklyStats] = useState<{ [cls: string]: { current: number, prev: number } }>({});
   const [detentions, setDetentions] = useState<string[]>([]);
+  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'booking' | 'teacher', id: string } | null>(null);
+  const [passwordInput, setPasswordInput] = useState("");
 
   const styles = getStyles(darkMode);
 
@@ -29,7 +33,6 @@ const ExplorePage: React.FC = () => {
       const teachers = data.teachers || {};
       const bookings = data.data || {};
 
-      // Week range
       const now = new Date();
       const weekAgo = new Date();
       weekAgo.setDate(now.getDate() - 7);
@@ -40,33 +43,19 @@ const ExplorePage: React.FC = () => {
       let prevWeek: { [cls: string]: number } = {};
       let studentCount: { [name: string]: number } = {};
 
-      // Collect this week's bookings (and stats)
-      const thisWeeksBookings = Object.values(bookings)
-        .filter((row: any) => {
-          if (!row.name || !row.date) return false;
-          const bookingDate = new Date(row.date);
-          return bookingDate >= weekAgo; // only this week's
-        })
-        .map((row: any) => {
-          let matchedTeacher = 'Unknown';
-          for (const key in teachers) {
-            if (teachers[key]?.teacherName?.toLowerCase() === row.teacherName?.toLowerCase()) {
-              matchedTeacher = teachers[key].teacherName;
-              break;
-            }
-          }
-          return {
-            ...row,
-            teacherName: matchedTeacher,
-            date: row.date,
-            time: row.time || new Date(row.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          };
-        })
-        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()); // newest first
+      const thisWeeksBookings = Object.entries(bookings)
+        .map(([id, row]: [string, any]) => ({
+          ...row,
+          id,
+          teacherName: Object.values(teachers).find((t: any) => t.teacherName?.toLowerCase() === row.teacherName?.toLowerCase())?.teacherName || "Unknown",
+          date: row.date,
+          time: row.time || new Date(row.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }))
+        .filter(row => new Date(row.date) >= weekAgo)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
       setBookingData(thisWeeksBookings);
 
-      // Calculate stats
       Object.values(bookings).forEach((row: any) => {
         if (!row.name || !row.class || !row.date) return;
         const bookingDate = new Date(row.date);
@@ -84,10 +73,7 @@ const ExplorePage: React.FC = () => {
         Object.fromEntries(
           Object.keys({ ...currentWeek, ...prevWeek }).map(cls => [
             cls,
-            {
-              current: currentWeek[cls] || 0,
-              prev: prevWeek[cls] || 0
-            }
+            { current: currentWeek[cls] || 0, prev: prevWeek[cls] || 0 }
           ])
         )
       );
@@ -99,6 +85,28 @@ const ExplorePage: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  const requestDelete = (type: 'booking' | 'teacher', id: string) => {
+    setDeleteTarget({ type, id });
+    setPasswordInput("");
+    setModalVisible(true);
+  };
+
+  const confirmDelete = () => {
+    if (passwordInput !== DELETE_PASSWORD) {
+      Alert.alert("Error", "Incorrect password.");
+      return;
+    }
+    if (deleteTarget) {
+      const path = deleteTarget.type === 'booking'
+        ? `bookings/data/${deleteTarget.id}`
+        : `bookings/teachers/${deleteTarget.id}`;
+      remove(ref(database, path))
+        .then(() => Alert.alert("Deleted", `${deleteTarget.type} removed.`))
+        .catch(err => Alert.alert("Error", err.message));
+    }
+    setModalVisible(false);
+  };
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -109,13 +117,6 @@ const ExplorePage: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Theme Toggle */}
-      <TouchableOpacity onPress={toggleTheme} style={{ marginBottom: 12, alignSelf: 'flex-end' }}>
-        <Text style={{ fontSize: 20 }}>
-          {darkMode ? "🌞" : "🌙"}
-        </Text>
-      </TouchableOpacity>
-
       {/* Weekly Stats */}
       <View style={styles.analysisBar}>
         {Object.entries(weeklyStats).map(([cls, stats], i) => (
@@ -141,6 +142,7 @@ const ExplorePage: React.FC = () => {
           <Text style={[styles.headerCell, { flex: 2 }]}>Date</Text>
           <Text style={[styles.headerCell, { flex: 1 }]}>Time</Text>
           <Text style={[styles.headerCell, { flex: 3 }]}>Remark</Text>
+          <Text style={[styles.headerCell, { flex: 1 }]}>❌</Text>
         </View>
 
         <ScrollView style={{ maxHeight: 300 }}>
@@ -153,13 +155,78 @@ const ExplorePage: React.FC = () => {
               <Text style={[styles.cell, { flex: 2 }]}>{item.date}</Text>
               <Text style={[styles.cell, { flex: 1 }]}>{item.time}</Text>
               <Text style={[styles.cell, { flex: 3 }]}>{item.remark}</Text>
+              <TouchableOpacity onPress={() => requestDelete('booking', item.id)} style={{ flex: 1, alignItems: 'center' }}>
+                <Ionicons name="trash" size={20} color="red" />
+              </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
       </View>
+
+      {/* Teacher List */}
+<View style={styles.table}>
+  <View style={styles.tableHeader}>
+    <Text style={[styles.headerCell, { flex: 3 }]}>Teacher</Text>
+    <Text style={[styles.headerCell, { flex: 2 }]}>Subject</Text>
+    <Text style={[styles.headerCell, { flex: 1 }]}>Action</Text>
+  </View>
+
+  <ScrollView style={{ maxHeight: 200 }}>
+    {Object.values(teachers).map((t: any, i: number) => (
+      <View style={styles.tableRow} key={i}>
+        <Text style={[styles.cell, { flex: 3 }]}>{t.teacherName}</Text>
+        <TouchableOpacity
+          style={[styles.cell, { flex: 1 }]}
+          onPress={() => {
+            setDeleteTarget({ type: 'teacher', id: t.id });
+            setPasswordModalVisible(true);
+          }}
+        >
+          <Text style={{ color: 'red', fontWeight: 'bold' }}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    ))}
+  </ScrollView>
+</View>
+
+<Modal
+  transparent
+  visible={passwordModalVisible}
+  animationType="fade"
+  onRequestClose={() => setPasswordModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContainer}>
+      <Text style={styles.modalTitle}>Enter Delete Password</Text>
+      <TextInput
+        style={styles.modalInput}
+        secureTextEntry
+        placeholder="Password"
+        placeholderTextColor={darkMode ? '#888' : '#999'}
+        value={enteredPassword}
+        onChangeText={setEnteredPassword}
+      />
+      <View style={styles.modalButtons}>
+        <TouchableOpacity
+          style={styles.modalButton}
+          onPress={() => setPasswordModalVisible(false)}
+        >
+          <Text style={styles.modalButtonText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.modalButton}
+          onPress={handleConfirmDelete}
+        >
+          <Text style={[styles.modalButtonText, { color: 'red' }]}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
     </View>
   );
 };
+
 
 
 const getStyles = (dark: boolean) =>
@@ -214,6 +281,44 @@ tableRow: {
 cell: {
   padding: 8,
   color: dark ? '#ccc' : '#333',
+},
+modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+modalContainer: {
+  backgroundColor: darkMode ? '#222' : '#fff',
+  padding: 20,
+  borderRadius: 12,
+  width: '80%',
+},
+modalTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  marginBottom: 10,
+  color: darkMode ? '#fff' : '#000',
+},
+modalInput: {
+  borderWidth: 1,
+  borderColor: darkMode ? '#555' : '#ccc',
+  padding: 10,
+  borderRadius: 8,
+  marginBottom: 12,
+  color: darkMode ? '#fff' : '#000',
+},
+modalButtons: {
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+},
+modalButton: {
+  padding: 8,
+  marginLeft: 8,
+},
+modalButtonText: {
+  fontWeight: 'bold',
+  color: '#007AFF',
 },
   });
 
