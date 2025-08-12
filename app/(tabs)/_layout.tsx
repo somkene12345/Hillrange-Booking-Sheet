@@ -1,45 +1,43 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, Text, StyleSheet } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../theme/ThemeContext';
 import Sheet from './index';
 import Analysis from './explore';
 
-const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
 
-export default function RootLayout() {
+export default function TabsLayout() {
+  const { darkMode } = useTheme();
+
   return (
-    <View style={{ flex: 1 }}>
-      <Drawer.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          drawerStyle: {
-            backgroundColor: '#fff',
-            width: 250,
-          },
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: darkMode ? '#222' : '#fff',
+        },
+        tabBarActiveTintColor: darkMode ? '#ffd700' : '#000',
+        tabBarInactiveTintColor: darkMode ? '#888' : '#aaa',
+        headerShown: false, // Drawer already has header
+      }}
+    >
+      <Tab.Screen
+        name="Sheet"
+        component={Sheet}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="document-text-outline" size={size} color={color} />
+          ),
         }}
-      >
-        <Drawer.Screen name="Home" component={Sheet} options={{ title: 'Sheet' }} />
-        <Drawer.Screen name="Analysis" component={Analysis} options={{ title: 'Analysis' }} />
-      </Drawer.Navigator>
-      
-      {/* Added footer only - no other changes */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Designed by Somkenenna Okechukwu</Text>
-      </View>
-    </View>
+      />
+      <Tab.Screen
+        name="Analysis"
+        component={Analysis}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="analytics-outline" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  footer: {
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    borderTopWidth: 1,
-    borderTopColor: '#eee'
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#666'
-  }
-});
