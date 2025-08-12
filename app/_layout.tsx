@@ -34,8 +34,8 @@ function DrawerScreens() {
         ),
       }}
     >
-<Drawer.Screen name="(tabs)/index" options={{ title: 'Sheet' }} />
-<Drawer.Screen name="(tabs)/explore" options={{ title: 'Analysis' }} />
+<Drawer.Screen name="index" options={{ title: 'Sheet' }} />
+<Drawer.Screen name="explore" options={{ title: 'Analysis' }} />
     </Drawer>
   );
 }
@@ -47,4 +47,3 @@ export default function RootLayout() {
     </ThemeProvider>
   );
 }
-yyy
