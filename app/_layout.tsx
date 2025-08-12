@@ -2,7 +2,7 @@ import React from 'react';
 import { Drawer } from 'expo-router/drawer';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
+import { ThemeProvider, useTheme } from '../theme/ThemeContext';
 import HomeScreen from './index';
 import ExplorePage from './explore';
 
