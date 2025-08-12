@@ -17,7 +17,6 @@ export default function TabsLayout() {
         },
         tabBarActiveTintColor: darkMode ? '#ffd700' : '#000',
         tabBarInactiveTintColor: darkMode ? '#888' : '#aaa',
-        headerShown: false, // Drawer already has header
       }}
     >
       <Tab.Screen

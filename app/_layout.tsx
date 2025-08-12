@@ -1,21 +1,19 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { ThemeProvider, useTheme } from '../theme/ThemeContext';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Ionicons } from '@expo/vector-icons';
 import TabsLayout from './(tabs)/_layout';
+import { View, TouchableOpacity } from 'react-native';
 
 const Drawer = createDrawerNavigator();
 
-function DrawerContent() {
+function DrawerScreens() {
   const { darkMode, toggleTheme } = useTheme();
 
   return (
     <Drawer.Navigator
-      initialRouteName="Tabs"
       screenOptions={{
         drawerStyle: {
           backgroundColor: darkMode ? '#222' : '#fff',
-          width: 250,
         },
         headerStyle: {
           backgroundColor: darkMode ? '#222' : '#fff',
@@ -32,7 +30,17 @@ function DrawerContent() {
         ),
       }}
     >
-      <Drawer.Screen name="Tabs" component={TabsLayout} options={{ title: 'Mednote' }} />
+      <Drawer.Screen
+        name="MainTabs"
+        component={TabsLayout}
+        options={{
+          title: 'Sheet & Analysis',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="albums-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      {/* You can add other drawer-only screens here */}
     </Drawer.Navigator>
   );
 }
@@ -40,7 +48,7 @@ function DrawerContent() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <DrawerContent />
+      <DrawerScreens />
     </ThemeProvider>
   );
 }
