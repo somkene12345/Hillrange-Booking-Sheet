@@ -6,10 +6,10 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ref, push, get } from 'firebase/database'; // Import Firebase methods
-import { database } from '../firebaseConfig'; // Import the initialized database
+import { database } from '../../firebaseConfig'; // Import the initialized database
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '../theme/ThemeContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 
 export default function Sheet() {
