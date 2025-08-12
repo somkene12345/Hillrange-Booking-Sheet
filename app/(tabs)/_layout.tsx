@@ -4,11 +4,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from './index';
 import ExplorePage from './explore';
-import { useTheme } from '../../theme/ThemeContext';
+import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
 
 const Drawer = createDrawerNavigator();
 
-export default function RootLayout() {
+function DrawerContent() {
   const { darkMode, toggleTheme } = useTheme();
 
   return (
@@ -38,20 +38,17 @@ export default function RootLayout() {
           ),
         }}
       >
-        <Drawer.Screen name="Sheet" component={HomeScreen} />
-        <Drawer.Screen name="Analysis" component={ExplorePage} />
+        <Drawer.Screen name="Sheet" component={HomeScreen} options={{ title: 'Sheet' }}/>
+        <Drawer.Screen name="Analysis" component={ExplorePage} options={{ title: 'Analysis' }}/>
       </Drawer.Navigator>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  footer: {
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-});
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <DrawerContent />
+    </ThemeProvider>
+  );
+}
