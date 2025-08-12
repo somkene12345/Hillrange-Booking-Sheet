@@ -1,7 +1,7 @@
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { View, Text, StyleSheet } from 'react-native';
-import HomeScreen from './index';
-import ExplorePage from './explore';
+import Sheet from './index';
+import Analysis from './explore';
 
 const Drawer = createDrawerNavigator();
 
@@ -17,8 +17,8 @@ export default function RootLayout() {
           },
         }}
       >
-        <Drawer.Screen name="Home" component={HomeScreen} options={{ title: 'Sheet' }} />
-        <Drawer.Screen name="Search Notes" component={ExplorePage} options={{ title: 'Analysis' }} />
+        <Drawer.Screen name="Home" component={Sheet} options={{ title: 'Sheet' }} />
+        <Drawer.Screen name="Analysis" component={Analysis} options={{ title: 'Analysis' }} />
       </Drawer.Navigator>
       
       {/* Added footer only - no other changes */}
