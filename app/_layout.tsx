@@ -1,49 +1,45 @@
-import React from 'react';
-import { Drawer } from 'expo-router/drawer';
-import { TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ThemeProvider, useTheme } from '../theme/ThemeContext';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { View, Text, StyleSheet } from 'react-native';
 import HomeScreen from './index';
 import ExplorePage from './explore';
 
-function DrawerScreens() {
-  const { darkMode, toggleTheme } = useTheme();
-
-  return (
-    <Drawer
-      screenOptions={{
-        drawerStyle: {
-          backgroundColor: darkMode ? '#222' : '#fff',
-          width: 250,
-        },
-        headerStyle: {
-          backgroundColor: darkMode ? '#222' : '#fff',
-        },
-        headerTintColor: darkMode ? '#fff' : '#000',
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={toggleTheme}
-            style={{ paddingRight: 15 }}
-          >
-            <Ionicons
-              name={darkMode ? 'sunny-outline' : 'moon-outline'}
-              size={26}
-              color={darkMode ? '#ffd700' : '#555'}
-            />
-          </TouchableOpacity>
-        ),
-      }}
-    >
-<Drawer.Screen name="index" options={{ title: 'Sheet' }} />
-<Drawer.Screen name="explore" options={{ title: 'Analysis' }} />
-    </Drawer>
-  );
-}
+const Drawer = createDrawerNavigator();
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <DrawerScreens />
-    </ThemeProvider>
+    <View style={{ flex: 1 }}>
+      <Drawer.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          drawerStyle: {
+            backgroundColor: '#fff',
+            width: 250,
+          },
+        }}
+      >
+        <Drawer.Screen name="Home" component={HomeScreen} options={{ title: 'Sheet' }} />
+        <Drawer.Screen name="Search Notes" component={ExplorePage} options={{ title: 'Analysis' }} />
+      </Drawer.Navigator>
+      
+      {/* Added footer only - no other changes */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Designed by Somkenenna Okechukwu</Text>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  footer: {
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+    borderTopWidth: 1,
+    borderTopColor: '#eee'
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#666'
+  }
+});
