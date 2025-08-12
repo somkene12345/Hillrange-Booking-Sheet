@@ -1,20 +1,15 @@
 import React from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Drawer } from 'expo-router/drawer';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import HomeScreen from './index';
-import ExplorePage from './explore';
 import { ThemeProvider, useTheme } from '../../theme/ThemeContext';
-
-const Drawer = createDrawerNavigator();
 
 function DrawerContent() {
   const { darkMode, toggleTheme } = useTheme();
 
   return (
-    <View style={{ flex: 1 }}>
-      <Drawer.Navigator
-        initialRouteName="Sheet"
+    <>
+      <Drawer
         screenOptions={{
           drawerStyle: {
             backgroundColor: darkMode ? '#222' : '#fff',
@@ -38,10 +33,11 @@ function DrawerContent() {
           ),
         }}
       >
-        <Drawer.Screen name="Sheet" component={HomeScreen} options={{ title: 'Sheet' }}/>
-        <Drawer.Screen name="Analysis" component={ExplorePage} options={{ title: 'Analysis' }}/>
-      </Drawer.Navigator>
-    </View>
+        <Drawer.Screen name="index" options={{ title: 'Sheet' }} />
+        <Drawer.Screen name="explore" options={{ title: 'Analysis' }} />
+      </Drawer>
+
+    </>
   );
 }
 
