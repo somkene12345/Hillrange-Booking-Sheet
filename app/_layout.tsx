@@ -43,9 +43,7 @@ function DrawerScreens() {
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <NavigationContainer>
         <DrawerScreens />
-      </NavigationContainer>
     </ThemeProvider>
   );
 }
