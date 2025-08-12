@@ -1,8 +1,8 @@
 // app/_layout.tsx
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Sheet from './index';
-import Analysis from './explore';
+import Sheet from './Sheet';
+import Analysis from './Analysis';
 
 const Tab = createBottomTabNavigator();
 
