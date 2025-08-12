@@ -8,7 +8,6 @@ const Tab = createBottomTabNavigator();
 
 export default function RootLayout() {
   return (
-    <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
@@ -17,6 +16,5 @@ export default function RootLayout() {
         <Tab.Screen name="Sheet" component={Sheet} />
         <Tab.Screen name="Analysis" component={Analysis} />
       </Tab.Navigator>
-    </NavigationContainer>
   );
 }
