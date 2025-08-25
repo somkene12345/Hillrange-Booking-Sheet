@@ -233,7 +233,7 @@ const getStyles = (darkMode: boolean) =>
   StyleSheet.create({
     container: {
       padding: 20,
-      backgroundColor: dark ? '#121212' : '#fff',
+      backgroundColor: darkMode ? '#121212' : '#fff',
       flex: 1,
     },
     center: {
@@ -243,12 +243,12 @@ const getStyles = (darkMode: boolean) =>
     },
     analysisBar: {
       padding: 10,
-      backgroundColor: dark ? '#1e1e1e' : '#f5f5f5',
+      backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
       marginBottom: 10,
       borderRadius: 5,
     },
     analysisText: {
-      color: dark ? '#fff' : '#000',
+      color: darkMode ? '#fff' : '#000',
       fontSize: 14,
     },
     detentionText: {
@@ -258,29 +258,29 @@ const getStyles = (darkMode: boolean) =>
     },
     table: {
     padding: 10,
-    backgroundColor: dark ? '#1e1e1e' : '#f5f5f5',
+    backgroundColor: darkMode ? '#1e1e1e' : '#f5f5f5',
   marginBottom: 10,
   borderRadius: 5,
 },
 tableHeader: {
   flexDirection: 'row',
-  backgroundColor: dark ? '#1f1f1f' : '#e6e6e6',
-  borderColor: dark ? '#333' : '#ccc',
+  backgroundColor: darkMode ? '#1f1f1f' : '#e6e6e6',
+  borderColor: darkMode ? '#333' : '#ccc',
   borderBottomWidth: 1,
 },
 headerCell: {
   padding: 8,
   fontWeight: 'bold',
-  color: dark ? '#fff' : '#000',
+  color: darkMode ? '#fff' : '#000',
 },
 tableRow: {
   flexDirection: 'row',
   borderBottomWidth: 1,
-  borderColor: dark ? '#333' : '#ccc',
+  borderColor: darkMode ? '#333' : '#ccc',
 },
 cell: {
   padding: 8,
-  color: dark ? '#ccc' : '#333',
+  color: darkMode ? '#ccc' : '#333',
 },
 modalOverlay: {
   flex: 1,
