@@ -28,13 +28,13 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="sheet"
+          name="index"
           options={{
             title: 'Sheet',
           }}
         />
         <Tabs.Screen
-          name="analysis"
+          name="explore"
           options={{
             title: 'Analysis',
           }}
