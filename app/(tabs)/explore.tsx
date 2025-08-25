@@ -6,7 +6,7 @@ import { useTheme } from '../../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DELETE_PASSWORD } from '@env';
 
-const Analysis: React.FC = () => {
+const ExplorePage: React.FC = () => {
   const { darkMode } = useTheme();
   const [bookingData, setBookingData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -322,4 +322,4 @@ modalButtonText: {
 },
   });
 
-export default Analysis;
+export default ExplorePage;
