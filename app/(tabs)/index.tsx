@@ -319,7 +319,7 @@ const handleSubmit = async () => {
 }
 
 
-const getStyles = (dark: boolean) => StyleSheet.create({
+const getStyles = (darkMode: boolean) => StyleSheet.create({
   reactLogo: {
     height: 178,
     width: 290,
