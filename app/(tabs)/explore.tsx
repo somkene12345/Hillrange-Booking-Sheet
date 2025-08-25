@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
 import { ref, onValue, remove } from 'firebase/database';
 import { database } from '../../firebaseConfig';
 import { useTheme } from '../../theme/ThemeContext';
