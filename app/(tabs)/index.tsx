@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../theme/ThemeContext';
 
 
-export default function index() {
+export default function HomeScreen() {
   const { darkMode, toggleTheme } = useTheme();
   const styles = getStyles(darkMode);
   const navigation = useNavigation();
@@ -197,7 +197,7 @@ const handleSubmit = async () => {
 
   const renderRow = (id: number) => (
     <tr key={id}>
-      <td style={styles.cell} color={{ light: '#ccc', darkMode: '#fff' }}>
+      <td style={styles.cell} color={{ light: '#ccc', dark: '#fff' }}>
         <TextInput
           placeholder="Enter Name"
           style={styles.input}
@@ -266,7 +266,7 @@ const handleSubmit = async () => {
   };
 
   return (
-    <ParallaxScrollView headerBackgroundColor={{ light: '#fa0', darkMode: '#fa0' }}
+    <ParallaxScrollView headerBackgroundColor={{ light: '#fa0', dark: '#fa0' }}
       headerImage={
         <Image
           source={require('@/assets/images/partial-react-logo.png')}
@@ -319,7 +319,7 @@ const handleSubmit = async () => {
 }
 
 
-const getStyles = (darkMode: boolean) => StyleSheet.create({
+const getStyles = (dark: boolean) => StyleSheet.create({
   reactLogo: {
     height: 178,
     width: 290,
@@ -352,23 +352,23 @@ const getStyles = (darkMode: boolean) => StyleSheet.create({
     padding: 10,
   },
   header:{
-    color: darkMode ? '#fff' : '#000' // Text color based on theme
+    color: dark ? '#fff' : '#000' // Text color based on theme
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 5,
     borderRadius: 4,
-    color: darkMode ? '#fff' : '#000', // Text color based on theme
-    backgroundColor: darkMode ? '#333' : '#fff', // Input background
+    color: dark ? '#fff' : '#000', // Text color based on theme
+    backgroundColor: dark ? '#333' : '#fff', // Input background
   },
   select: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 5,
     borderRadius: 4,
-    color: darkMode ? '#fff' : '#000', // Dropdown text color
-    backgroundColor: darkMode ? '#333' : '#fff', // Dropdown background
+    color: dark ? '#fff' : '#000', // Dropdown text color
+    backgroundColor: dark ? '#333' : '#fff', // Dropdown background
   },
   submitButtonText: {
     color: '#fff',
