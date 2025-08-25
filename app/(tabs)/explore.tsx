@@ -229,7 +229,7 @@ const ExplorePage: React.FC = () => {
 
 
 
-const getStyles = (dark: boolean) =>
+const getStyles = (darkMode: boolean) =>
   StyleSheet.create({
     container: {
       padding: 20,
