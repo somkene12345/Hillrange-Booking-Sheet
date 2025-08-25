@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../theme/ThemeContext';
 
 
-export default function HomeScreen() {
+export default function index() {
   const { darkMode, toggleTheme } = useTheme();
   const styles = getStyles(darkMode);
   const navigation = useNavigation();
