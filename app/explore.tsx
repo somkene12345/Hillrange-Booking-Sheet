@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { ref, onValue } from 'firebase/database';
-import { database } from '../../firebaseConfig';
-import { useTheme } from '../../theme/ThemeContext';
+import { database } from '../firebaseConfig';
+import { useTheme } from '../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ExplorePage: React.FC = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemeProvider } from '../../theme/ThemeContext'; // ✅ import your ThemeProvider
+import { ThemeProvider } from '../theme/ThemeContext'; // ✅ import your ThemeProvider
   import { View, Text } from 'react-native';
   import { Stack } from 'expo-router';
 
