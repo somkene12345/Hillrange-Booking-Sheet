@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import { ref, onValue } from 'firebase/database';
+import { onValue, ref } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { database } from '../../firebaseConfig';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TabTwoScreen() {
   const [bookingData, setBookingData] = useState<any[]>([]);
@@ -119,6 +118,8 @@ export default function TabTwoScreen() {
     <Text style={[styles.headerCell, { flex: 1 }]}>Class</Text>
     <Text style={[styles.headerCell, { flex: 1 }]}>Team</Text>
     <Text style={[styles.headerCell, { flex: 3 }]}>Remark</Text>
+    <Text style={[styles.headerCell, { flex: 3 }]}>Time</Text>
+
   </View>
 
   {/* Scrollable body */}
@@ -130,6 +131,18 @@ export default function TabTwoScreen() {
         <Text style={[styles.cell, { flex: 1 }]}>{item.class}</Text>
         <Text style={[styles.cell, { flex: 1 }]}>{item.team}</Text>
         <Text style={[styles.cell, { flex: 3 }]}>{item.remark}</Text>
+        <Text style={[styles.cell, { flex: 3 }]}>
+  {new Date(item.date).toLocaleString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })}
+</Text>
+
+
       </View>
     ))}
   </ScrollView>
