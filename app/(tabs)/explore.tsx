@@ -1,6 +1,9 @@
+import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { database } from '../../firebaseConfig';
 
 export default function TabTwoScreen() {
@@ -92,6 +95,16 @@ export default function TabTwoScreen() {
   }
 
   return (
+        <ParallaxScrollView headerBackgroundColor={{ light: '#fa0', dark: '#fa0' }}
+          headerImage={
+            <Image
+              source={require('@/assets/images/partial-react-logo.png')}
+              style={styles.reactLogo}
+            />
+          }>
+          <ThemedView style={styles.titleContainer}>
+            <ThemedText type="title">Hillrange Booking Sheet</ThemedText>
+          </ThemedView>
     <View style={styles.container}>
 
       {/* Analysis Bar */}
@@ -148,11 +161,23 @@ export default function TabTwoScreen() {
   </ScrollView>
     </View>
     </View>
+    </ParallaxScrollView>
   );
 };
 
 const getStyles = () =>
   StyleSheet.create({
+    reactLogo: {
+    height: 178,
+    width: 290,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+  },
+    titleContainer: {
+    marginTop: 20,
+    textAlign: 'center',
+  },
     container: {
       padding: 20,
       backgroundColor: '#fff',
